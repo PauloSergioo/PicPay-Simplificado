@@ -29,15 +29,15 @@ public class UserResource {
 
 	@Autowired
 	private UserService service;
-	
-	@PreAuthorize("hasAnyRole('ROLE_COMMON')")
+
+	@PreAuthorize("hasAnyRole('ROLE_SHOPKEEPERS', 'ROLE_COMMON')")
 	@GetMapping
 	public ResponseEntity<Page<UserDTO>> findAll(Pageable pageable) {
 		Page<UserDTO> list = service.findAllPaged(pageable);		
 		return ResponseEntity.ok().body(list);
 	}
 
-	@PreAuthorize("hasAnyRole('ROLE_COMMON')")
+	@PreAuthorize("hasAnyRole('ROLE_SHOPKEEPERS', 'ROLE_COMMON')")
 	@GetMapping(value = "/{id}")
 	public ResponseEntity<UserDTO> findById(@PathVariable Long id) {
 		UserDTO dto = service.findById(id);
@@ -51,6 +51,7 @@ public class UserResource {
 		return ResponseEntity.ok().body(dto);
 	}
 
+	@PreAuthorize("hasAnyRole('ROLE_SHOPKEEPERS', 'ROLE_COMMON')")
 	@PostMapping
 	public ResponseEntity<UserDTO> insert(@RequestBody @Valid UserInsertDTO dto) {
 		UserDTO newDto = service.insert(dto);
@@ -59,14 +60,14 @@ public class UserResource {
 		return ResponseEntity.created(uri).body(newDto);
 	}
 
-	@PreAuthorize("hasAnyRole('ROLE_COMMON')")
+	@PreAuthorize("hasAnyRole('ROLE_SHOPKEEPERS', 'ROLE_COMMON')")
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<UserDTO> update(@PathVariable Long id, @RequestBody @Valid UserUpdateDTO dto) {
 		UserDTO newDto = service.update(id, dto);
 		return ResponseEntity.ok().body(newDto);
 	}
 
-	@PreAuthorize("hasAnyRole('ROLE_COMMON')")
+	@PreAuthorize("hasAnyRole('ROLE_SHOPKEEPERS', 'ROLE_COMMON')")
 	@DeleteMapping(value = "/{id}")
 	public ResponseEntity<Void> delete(@PathVariable Long id) {
 		service.delete(id);
