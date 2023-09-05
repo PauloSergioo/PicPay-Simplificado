@@ -6,9 +6,11 @@ import com.picpaysimplificado.dto.UserInsertDTO;
 import com.picpaysimplificado.dto.UserUpdateDTO;
 import com.picpaysimplificado.entities.Role;
 import com.picpaysimplificado.entities.User;
+import com.picpaysimplificado.enums.UserType;
 import com.picpaysimplificado.projection.UserDetailsProjection;
 import com.picpaysimplificado.repositories.RoleRepository;
 import com.picpaysimplificado.repositories.UserRepository;
+import com.picpaysimplificado.services.exceptions.UnauthorizedTransactionException;
 import com.picpaysimplificado.services.exceptions.DatabaseException;
 import com.picpaysimplificado.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityNotFoundException;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,6 +45,17 @@ public class UserService implements UserDetailsService {
 
 	@Autowired
 	private AuthService authService;
+
+	public void validateTransaction(User sender, BigDecimal amount) {
+
+		if (sender.getUserType().equals(UserType.SHOPKEEPERS)) {
+			throw new UnauthorizedTransactionException("Você não tem autorização para realizar esta transação.");
+		}
+
+		if (sender.getBalance().compareTo(amount) < 0) {
+			throw new UnauthorizedTransactionException("Saldo insuficiente");
+		}
+	}
 	
 	@Transactional(readOnly = true)
 	public Page<UserDTO> findAllPaged(Pageable pageable) {
