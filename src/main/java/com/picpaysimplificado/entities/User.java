@@ -26,12 +26,13 @@ public class User implements UserDetails {
 
     @Column(unique = true)
     private String email;
-    private String password;
 
     private BigDecimal balance;
 
     @Enumerated(EnumType.STRING)
     private UserType userType;
+
+    private String password;
 
     @ManyToMany
     @JoinTable(name = "tb_user_role",
@@ -42,16 +43,16 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(Long id, String firstName, String lastName, String document, String email, String password, BigDecimal balance, UserType userType) {
+    public User(Long id, String firstName, String lastName, String document, String email, BigDecimal balance, UserType userType, String password) {
         super();
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.document = document;
         this.email = email;
-        this.password = password;
         this.balance = balance;
         this.userType = userType;
+        this.password = password;
     }
 
     public Long getId() {
@@ -94,6 +95,22 @@ public class User implements UserDetails {
         this.email = email;
     }
 
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
+
+    public UserType getUserType() {
+        return userType;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
+    }
+
     public boolean hasRole(String roleName) {
         for (Role role : roles) {
             if (role.getAuthority().equals(roleName)) {
@@ -112,21 +129,6 @@ public class User implements UserDetails {
         return password;
     }
 
-    public BigDecimal getBalance() {
-        return balance;
-    }
-
-    public void setBalance(BigDecimal balance) {
-        this.balance = balance;
-    }
-
-    public UserType getUserType() {
-        return userType;
-    }
-
-    public void setUserType(UserType userType) {
-        this.userType = userType;
-    }
     @Override
     public String getUsername() {
         return email;
