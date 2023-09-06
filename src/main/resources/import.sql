@@ -17,3 +17,14 @@ INSERT INTO tb_user_role (user_id, role_id) VALUES (4, 2);
 INSERT INTO tb_user_role (user_id, role_id) VALUES (5, 1);
 INSERT INTO tb_user_role (user_id, role_id) VALUES (6, 2);
 INSERT INTO tb_user_role (user_id, role_id) VALUES (7, 1);
+
+INSERT INTO tb_bank_account (account_number, account_holder_name, balance, user_id) VALUES ('12345678', 'Alex Brown', 1200.00, 1);
+INSERT INTO tb_bank_account (account_number, account_holder_name, balance, user_id) VALUES ('98765432', 'Maria Green', 200.00, 2);
+INSERT INTO tb_bank_account (account_number, account_holder_name, balance, user_id) VALUES ('23456789', 'João Silva', 500.00, 3);
+INSERT INTO tb_bank_account (account_number, account_holder_name, balance, user_id) VALUES ('87654321', 'Ana Pereira', 900.00, 4);
+INSERT INTO tb_bank_account (account_number, account_holder_name, balance, user_id) VALUES ('34567890', 'Carlos Santos', 1000.00, 5);
+INSERT INTO tb_bank_account (account_number, account_holder_name, balance, user_id) VALUES ('76543210', 'Mariana Oliveira', 2300.00, 6);
+INSERT INTO tb_bank_account (account_number, account_holder_name, balance, user_id) VALUES ('45678901', 'Pedro Ribeiro', 1500.00, 7);
+
+INSERT INTO tb_transfer (amount, source_account_id, target_account_id, timestamp) VALUES (100.00, 1, 2, NOW());
+INSERT INTO tb_transfer (amount, source_account_id, target_account_id, timestamp) VALUES (50.00, 3, 1, NOW());
