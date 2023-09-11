@@ -49,11 +49,11 @@ public class UserService implements UserDetailsService {
 	public void validateTransaction(User sender, BigDecimal amount) {
 
 		if (sender.getUserType().equals(UserType.SHOPKEEPERS)) {
-			throw new UnauthorizedTransactionException("Você não tem autorização para realizar esta transação.");
+			throw new UnauthorizedTransactionException("You are not authorized to carry out this transaction.");
 		}
 
 		if (sender.getBalance().compareTo(amount) < 0) {
-			throw new UnauthorizedTransactionException("Saldo insuficiente");
+			throw new UnauthorizedTransactionException("Insufficient funds");
 		}
 	}
 	

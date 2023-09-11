@@ -1,12 +1,10 @@
 package com.picpaysimplificado.entities;
 
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import com.picpaysimplificado.enums.UserType;
+import com.picpaysimplificado.services.exceptions.UnauthorizedTransactionException;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,7 +27,7 @@ public class User implements UserDetails {
 
     private BigDecimal balance;
 
-    @Enumerated(EnumType.STRING)
+    @Transient
     private UserType userType;
 
     private String password;
@@ -39,6 +37,9 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<BankAccount> bankAccounts = new ArrayList<>();
 
     public User() {
     }
