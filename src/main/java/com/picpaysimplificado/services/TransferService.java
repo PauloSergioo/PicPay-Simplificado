@@ -4,6 +4,7 @@ import com.picpaysimplificado.dto.TransferRequestDTO;
 import com.picpaysimplificado.dto.TransferResponseDTO;
 import com.picpaysimplificado.entities.BankAccount;
 import com.picpaysimplificado.entities.Transfer;
+import com.picpaysimplificado.entities.User;
 import com.picpaysimplificado.repositories.BankAccountRepository;
 import com.picpaysimplificado.repositories.TransferRepository;
 import com.picpaysimplificado.services.exceptions.InsufficientBalanceException;
@@ -20,6 +21,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class TransferService {
@@ -28,6 +30,8 @@ public class TransferService {
 
     @Autowired
     private TransferRepository transferRepository;
+
+    private Transfer transfer;
 
     @Value("${external.authorizer.url}")
     private String externalAuthorizerUrl;
@@ -44,14 +48,13 @@ public class TransferService {
             throw new InsufficientBalanceException("Insufficient funds in the account");
         }
 
-        // Consultar o serviço autorizador externo
         boolean isAuthorized = authorizeTransfer(request);
 
         if (!isAuthorized) {
+            rollbackTransaction(transfer.getId());
             throw new UnauthorizedTransactionException("Unauthorized transaction");
         }
 
-        // Criar e salvar a transferência
         Transfer transfer = new Transfer();
         transfer.setSourceAccount(sourceAccount);
 
@@ -68,14 +71,11 @@ public class TransferService {
     }
 
     private boolean authorizeTransfer(TransferRequestDTO request) {
-        // Criar um objeto HttpHeaders com o cabeçalho "Accept" configurado para aceitar JSON
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-        // Criar uma instância do RestTemplate
         RestTemplate restTemplate = new RestTemplate();
 
-        // Realizar uma chamada HTTP GET para o serviço autorizador externo
         ResponseEntity<Map<String, String>> response = restTemplate.exchange(
                 externalAuthorizerUrl,
                 HttpMethod.GET,
@@ -83,15 +83,14 @@ public class TransferService {
                 new ParameterizedTypeReference<Map<String, String>>() {}
         );
 
-        // Verificar se a resposta indica que a transferência está autorizada (por exemplo, com base no conteúdo da resposta)
         if (response.getStatusCode() == HttpStatus.OK) {
             Map<String, String> responseBody = response.getBody();
             assert responseBody != null;
             String authorizationStatus = responseBody.get("message");
-            // Verificar se a mensagem de autorização é "Autorizado"
+
             return "Autorizado".equalsIgnoreCase(authorizationStatus);
         } else {
-            // Se a chamada HTTP falhar ou se a resposta indicar que a transferência não está autorizada, retornar false
+
             return false;
         }
     }
@@ -104,5 +103,19 @@ public class TransferService {
         responseDTO.setTargetAccountId(entity.getTargetAccount().getId());
         responseDTO.setTimestamp(entity.getTimestamp());
         return responseDTO;
+    }
+
+    private void rollbackTransaction(Long transferId) {
+        if (transferId == null) {
+            return;
+        }
+
+        Optional<Transfer> transferOptional = transferRepository.findById(transferId);
+
+        if (transferOptional.isPresent()) {
+            Transfer transfer = transferOptional.get();
+
+            transferRepository.delete(transfer);
+        }
     }
 }
