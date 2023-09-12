@@ -2,10 +2,7 @@ package com.picpaysimplificado.resources.exceptions;
 
 import java.time.Instant;
 
-import com.picpaysimplificado.services.exceptions.EmailException;
-import com.picpaysimplificado.services.exceptions.DatabaseException;
-import com.picpaysimplificado.services.exceptions.InsufficientBalanceException;
-import com.picpaysimplificado.services.exceptions.ResourceNotFoundException;
+import com.picpaysimplificado.services.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -83,6 +80,21 @@ public class ResourceExceptionHandler {
 		err.setPath(request.getRequestURI());
 
 		err.addError("balance", "Saldo insuficiente na conta de origem");
+
+		return ResponseEntity.status(status).body(err);
+	}
+
+	@ExceptionHandler(UnauthorizedTransactionException.class)
+	public ResponseEntity<ValidationError> unauthorizedTransaction(UnauthorizedTransactionException e, HttpServletRequest request) {
+		HttpStatus status = HttpStatus.UNAUTHORIZED;
+		ValidationError err = new ValidationError();
+		err.setTimestamp(Instant.now());
+		err.setStatus(status.value());
+		err.setError("Validation exception");
+		err.setMessage(e.getMessage());
+		err.setPath(request.getRequestURI());
+
+		err.addError("error", "Transação não autorizada");
 
 		return ResponseEntity.status(status).body(err);
 	}
